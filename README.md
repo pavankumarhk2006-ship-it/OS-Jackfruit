@@ -2,16 +2,16 @@
 
 ## 📌 Overview
 
-This project implements a lightweight container runtime in C. It allows execution of isolated workloads using Linux primitives such as `fork()`, `chroot()`, and `execvp()`. The runtime supports running CPU-bound and memory-bound workloads inside containerized environments and observing system resource utilization.
+This project implements a lightweight container runtime in C that supports execution of isolated workloads using Linux system calls. It provides basic container lifecycle management including starting, stopping, and monitoring containers.
 
 ---
 
 ## 🧠 Objectives
 
-* Build a basic container runtime in C
-* Execute workloads inside isolated root filesystems
-* Analyze CPU and memory behavior using system tools
-* Understand process isolation and resource utilization
+* Build a container runtime using C
+* Execute isolated workloads using `chroot()`
+* Implement process lifecycle management (start, stop, monitor)
+* Analyze CPU and memory utilization
 
 ---
 
@@ -19,46 +19,42 @@ This project implements a lightweight container runtime in C. It allows executio
 
 ### 1. User-Space Runtime (`engine.c`)
 
-* Manages container lifecycle
-* Uses:
+The core runtime responsible for:
 
-  * `fork()` → create process
-  * `chroot()` → filesystem isolation
-  * `execvp()` → execute workload
+* Creating containers using `fork()`
+* Isolating filesystem using `chroot()`
+* Executing workloads using `execvp()`
+* Managing container lifecycle
 
-### 2. Workloads
+### 2. Kernel Module (`monitor.c`)
 
-* `cpu_hog` → CPU-intensive workload
-* `memory_hog` → Memory-intensive workload
+* Basic kernel module for monitoring support
+* Successfully builds and loads into kernel
+* Device: `/dev/container_monitor`
+
+### 3. Workloads
+
+* `cpu_hog` → CPU-intensive infinite loop
+* `memory_hog` → Incremental memory allocation
 * `io_pulse` → I/O workload
 
 ---
 
-## ⚙️ Setup Instructions
-
-### Clone Repository
+## ⚙️ Setup
 
 ```bash
 git clone https://github.com/<your-username>/OS-Jackfruit.git
 cd OS-Jackfruit/boilerplate
-```
 
-### Install Dependencies
-
-```bash
 sudo apt update
 sudo apt install -y build-essential linux-headers-$(uname -r)
-```
 
-### Build
-
-```bash
 make
 ```
 
 ---
 
-## 📂 Root Filesystem Setup
+## 📂 Root Filesystem
 
 ```bash
 mkdir rootfs-base
@@ -70,13 +66,36 @@ cp -a rootfs-base rootfs-alpha
 
 ---
 
-## 🚀 Running Containers
+## 🚀 Container Commands
 
-Copy workloads:
+### 🔹 Run (Foreground)
 
 ```bash
-cp cpu_hog ../rootfs-alpha/
-cp memory_hog ../rootfs-alpha/
+sudo ./engine run alpha ../rootfs-alpha /cpu_hog
+```
+
+---
+
+### 🔹 Start (Background)
+
+```bash
+sudo ./engine start alpha ../rootfs-alpha /cpu_hog
+```
+
+---
+
+### 🔹 List Running Containers
+
+```bash
+sudo ./engine ps
+```
+
+---
+
+### 🔹 Stop Container
+
+```bash
+sudo ./engine stop cpu_hog
 ```
 
 ---
@@ -85,18 +104,13 @@ cp memory_hog ../rootfs-alpha/
 
 ```bash
 sudo ./engine run alpha ../rootfs-alpha /cpu_hog
-```
-
-Monitor:
-
-```bash
 top
 ```
 
 ### Observation
 
 * CPU usage reaches ~100%
-* Process consumes maximum CPU
+* Demonstrates CPU-bound workload
 
 ---
 
@@ -104,26 +118,33 @@ top
 
 ```bash
 sudo ./engine run alpha ../rootfs-alpha /memory_hog
-```
-
-Monitor:
-
-```bash
 top
 ```
 
 ### Observation
 
-* Memory usage increases gradually
-* Process consumes high %MEM
+* Memory usage increases continuously
+* Demonstrates memory pressure
 
 ---
 
-## 📸 Screenshots to Include
+## 📊 Features Implemented
 
-* CPU usage (~100%) in `top`
-* Memory usage increase in `top`
-* Container start output (`Starting container: alpha`)
+* Container creation using `fork()`
+* Filesystem isolation using `chroot()`
+* Workload execution using `execvp()`
+* Background container execution (`start`)
+* Process monitoring (`ps`)
+* Container termination (`stop`)
+* CPU and memory workload analysis
+
+---
+
+## 📸 Screenshots (Attach)
+
+* CPU usage (~100%)
+* Memory usage increase
+* Running container processes
 
 ---
 
@@ -131,28 +152,28 @@ top
 
 ### CPU Workload
 
-* Infinite loop
-* No I/O → maximum CPU utilization
+* Infinite loop without delay
+* Maximizes CPU utilization
 
 ### Memory Workload
 
 * Allocates memory in chunks
-* Demonstrates memory pressure
+* Demonstrates increasing memory consumption
 
 ---
 
 ## ⚠️ Challenges Faced
 
-* Fixing kernel module compilation issues
+* Fixing kernel module compilation errors
 * Debugging low CPU utilization
-* Ensuring correct binary execution in container
-* Handling runtime errors
+* Ensuring correct execution inside container
+* Managing process lifecycle
 
 ---
 
 ## ✅ Conclusion
 
-This project demonstrates a functional container runtime capable of executing workloads in isolated environments and analyzing system resource usage effectively.
+This project successfully demonstrates a basic container runtime with lifecycle management and resource monitoring. It provides practical understanding of process isolation and system-level programming.
 
 ---
 
@@ -162,13 +183,13 @@ This project demonstrates a functional container runtime capable of executing wo
 A lightweight isolated environment sharing the host kernel.
 
 **How is isolation achieved?**
-Using `chroot()` and process separation.
+Using `chroot()` and process separation via `fork()`.
 
 **Why does cpu_hog use high CPU?**
-Because it runs a tight infinite loop.
+It runs a tight infinite loop without delay.
 
-**How do you monitor system resources?**
-Using `top`.
+**How do you monitor containers?**
+Using `ps` and system tools like `top`.
 
 ---
 
@@ -177,4 +198,3 @@ Using `top`.
 Name: **Pavan**
 Course: Operating Systems
 Project: Multi-Container Runtime
-
