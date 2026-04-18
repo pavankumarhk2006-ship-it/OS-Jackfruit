@@ -1,111 +1,180 @@
-# Multi-Container Runtime
+# Multi-Container Runtime (OS Mini Project)
 
-A lightweight Linux container runtime in C with a long-running supervisor and a kernel-space memory monitor.
+## 📌 Overview
 
-Read [`project-guide.md`](project-guide.md) for the full project specification.
+This project implements a lightweight container runtime in C. It allows execution of isolated workloads using Linux primitives such as `fork()`, `chroot()`, and `execvp()`. The runtime supports running CPU-bound and memory-bound workloads inside containerized environments and observing system resource utilization.
 
 ---
 
-## Getting Started
+## 🧠 Objectives
 
-### 1. Fork the Repository
+* Build a basic container runtime in C
+* Execute workloads inside isolated root filesystems
+* Analyze CPU and memory behavior using system tools
+* Understand process isolation and resource utilization
 
-1. Go to [github.com/shivangjhalani/OS-Jackfruit](https://github.com/shivangjhalani/OS-Jackfruit)
-2. Click **Fork** (top-right)
-3. Clone your fork:
+---
+
+## 🏗️ Architecture
+
+### 1. User-Space Runtime (`engine.c`)
+
+* Manages container lifecycle
+* Uses:
+
+  * `fork()` → create process
+  * `chroot()` → filesystem isolation
+  * `execvp()` → execute workload
+
+### 2. Workloads
+
+* `cpu_hog` → CPU-intensive workload
+* `memory_hog` → Memory-intensive workload
+* `io_pulse` → I/O workload
+
+---
+
+## ⚙️ Setup Instructions
+
+### Clone Repository
 
 ```bash
 git clone https://github.com/<your-username>/OS-Jackfruit.git
-cd OS-Jackfruit
+cd OS-Jackfruit/boilerplate
 ```
 
-### 2. Set Up Your VM
-
-You need an **Ubuntu 22.04 or 24.04** VM with **Secure Boot OFF**. WSL will not work.
-
-Install dependencies:
+### Install Dependencies
 
 ```bash
 sudo apt update
 sudo apt install -y build-essential linux-headers-$(uname -r)
 ```
 
-### 3. Run the Environment Check
+### Build
 
 ```bash
-cd boilerplate
-chmod +x environment-check.sh
-sudo ./environment-check.sh
+make
 ```
 
-Fix any issues reported before moving on.
+---
 
-### 4. Prepare the Root Filesystem
+## 📂 Root Filesystem Setup
 
 ```bash
 mkdir rootfs-base
 wget https://dl-cdn.alpinelinux.org/alpine/v3.20/releases/x86_64/alpine-minirootfs-3.20.3-x86_64.tar.gz
 tar -xzf alpine-minirootfs-3.20.3-x86_64.tar.gz -C rootfs-base
 
-# Make one writable copy per container you plan to run
-cp -a ./rootfs-base ./rootfs-alpha
-cp -a ./rootfs-base ./rootfs-beta
+cp -a rootfs-base rootfs-alpha
 ```
-
-Do not commit `rootfs-base/` or `rootfs-*` directories to your repository.
-
-### 5. Understand the Boilerplate
-
-The `boilerplate/` folder contains starter files:
-
-| File                   | Purpose                                             |
-| ---------------------- | --------------------------------------------------- |
-| `engine.c`             | User-space runtime and supervisor skeleton          |
-| `monitor.c`            | Kernel module skeleton                              |
-| `monitor_ioctl.h`      | Shared ioctl command definitions                    |
-| `Makefile`             | Build targets for both user-space and kernel module |
-| `cpu_hog.c`            | CPU-bound test workload                             |
-| `io_pulse.c`           | I/O-bound test workload                             |
-| `memory_hog.c`         | Memory-consuming test workload                      |
-| `environment-check.sh` | VM environment preflight check                      |
-
-Use these as your starting point. You are free to restructure the repository however you want — the submission requirements are listed in the project guide.
-
-### 6. Build and Verify
-
-```bash
-cd boilerplate
-make
-```
-
-If this compiles without errors, your environment is ready.
-
-### 7. GitHub Actions Smoke Check
-
-Your fork will inherit a minimal GitHub Actions workflow from this repository.
-
-That workflow only performs CI-safe checks:
-
-- `make -C boilerplate ci`
-- user-space binary compilation (`engine`, `memory_hog`, `cpu_hog`, `io_pulse`)
-- `./boilerplate/engine` with no arguments must print usage and exit with a non-zero status
-
-The CI-safe build command is:
-
-```bash
-make -C boilerplate ci
-```
-
-This smoke check does not test kernel-module loading, supervisor runtime behavior, or container execution.
 
 ---
 
-## What to Do Next
+## 🚀 Running Containers
 
-Read [`project-guide.md`](project-guide.md) end to end. It contains:
+Copy workloads:
 
-- The six implementation tasks (multi-container runtime, CLI, logging, kernel monitor, scheduling experiments, cleanup)
-- The engineering analysis you must write
-- The exact submission requirements, including what your `README.md` must contain (screenshots, analysis, design decisions)
+```bash
+cp cpu_hog ../rootfs-alpha/
+cp memory_hog ../rootfs-alpha/
+```
 
-Your fork's `README.md` should be replaced with your own project documentation as described in the submission package section of the project guide. (As in get rid of all the above content and replace with your README.md)
+---
+
+## 🔥 CPU Workload Demo
+
+```bash
+sudo ./engine run alpha ../rootfs-alpha /cpu_hog
+```
+
+Monitor:
+
+```bash
+top
+```
+
+### Observation
+
+* CPU usage reaches ~100%
+* Process consumes maximum CPU
+
+---
+
+## 🧠 Memory Workload Demo
+
+```bash
+sudo ./engine run alpha ../rootfs-alpha /memory_hog
+```
+
+Monitor:
+
+```bash
+top
+```
+
+### Observation
+
+* Memory usage increases gradually
+* Process consumes high %MEM
+
+---
+
+## 📸 Screenshots to Include
+
+* CPU usage (~100%) in `top`
+* Memory usage increase in `top`
+* Container start output (`Starting container: alpha`)
+
+---
+
+## 🧪 Analysis
+
+### CPU Workload
+
+* Infinite loop
+* No I/O → maximum CPU utilization
+
+### Memory Workload
+
+* Allocates memory in chunks
+* Demonstrates memory pressure
+
+---
+
+## ⚠️ Challenges Faced
+
+* Fixing kernel module compilation issues
+* Debugging low CPU utilization
+* Ensuring correct binary execution in container
+* Handling runtime errors
+
+---
+
+## ✅ Conclusion
+
+This project demonstrates a functional container runtime capable of executing workloads in isolated environments and analyzing system resource usage effectively.
+
+---
+
+## 🎤 Viva Questions
+
+**What is a container?**
+A lightweight isolated environment sharing the host kernel.
+
+**How is isolation achieved?**
+Using `chroot()` and process separation.
+
+**Why does cpu_hog use high CPU?**
+Because it runs a tight infinite loop.
+
+**How do you monitor system resources?**
+Using `top`.
+
+---
+
+## 👨‍💻 Author
+
+Name: **Pavan**
+Course: Operating Systems
+Project: Multi-Container Runtime
+

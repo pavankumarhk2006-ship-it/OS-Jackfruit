@@ -28,23 +28,11 @@ static unsigned int parse_seconds(const char *arg, unsigned int fallback)
 
 int main(int argc, char *argv[])
 {
-    const unsigned int duration = (argc > 1) ? parse_seconds(argv[1], 10) : 10;
-    const time_t start = time(NULL);
-    time_t last_report = start;
     volatile unsigned long long accumulator = 0;
 
-    while ((unsigned int)(time(NULL) - start) < duration) {
-        accumulator = accumulator * 1664525ULL + 1013904223ULL;
+    while (1) {
+    accumulator = accumulator * 1664525ULL + 1013904223ULL;
+}
 
-        if (time(NULL) != last_report) {
-            last_report = time(NULL);
-            printf("cpu_hog alive elapsed=%ld accumulator=%llu\n",
-                   (long)(last_report - start),
-                   accumulator);
-            fflush(stdout);
-        }
-    }
-
-    printf("cpu_hog done duration=%u accumulator=%llu\n", duration, accumulator);
     return 0;
 }
