@@ -192,7 +192,33 @@ It runs a tight infinite loop without delay.
 Using `ps` and system tools like `top`.
 
 ---
+## 📸 Screenshots & Explanation
 
+### CPU Workload
+![CPU](screenshots/cpu.png)
+
+The cpu_hog program uses full CPU continuously.
+
+---
+
+### Memory Workload
+![Memory](screenshots/memory.png)
+
+The memory_hog program increases memory usage over time.
+
+---
+
+### Process Monitoring
+![PS](screenshots/ps.png)
+
+Shows running container using ps command.
+
+---
+
+### Stop Container
+![Stop](screenshots/stop.png)
+
+Stops the running container process.
 ## 👨‍💻 Author
 
 Name: **Pavan**
