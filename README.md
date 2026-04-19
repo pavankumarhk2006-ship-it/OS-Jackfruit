@@ -106,7 +106,8 @@ sudo ./engine stop cpu_hog
 sudo ./engine run alpha ../rootfs-alpha /cpu_hog
 top
 ```
-
+🔹 Restart Container
+sudo ./engine restart alpha ../rootfs-alpha /cpu_hog
 ### Observation
 
 * CPU usage reaches ~100%
@@ -127,19 +128,28 @@ top
 * Demonstrates memory pressure
 
 ---
-
 ## 📊 Features Implemented
 
-* Container creation using `fork()`
-* Filesystem isolation using `chroot()`
-* Workload execution using `execvp()`
-* Background container execution (`start`)
-* Process monitoring (`ps`)
-* Container termination (`stop`)
-* CPU and memory workload analysis
-
+- Container creation using `fork()`
+- Filesystem isolation using `chroot()`
+- Workload execution using `execvp()`
+- Background container execution (`start`)
+- Process monitoring with structured output (`ps`)
+- Container termination (`stop`)
+- 🔥 Restart functionality (`restart`)
+- 🔥 Duplicate container prevention
+- 🔥 Per-container logging system
+- 🔥 Safe process termination (`pkill -x`)
+- 🔥 Container tracking using ID and PID
 ---
+## 🔥 Improvements Over Base Implementation
 
+- Implemented `restart` command for container lifecycle management
+- Added duplicate container prevention using `pgrep`
+- Introduced per-container logging (`alpha.log`, etc.)
+- Improved `ps` command to display structured output (ID + PID)
+- Fixed unsafe process termination by using `pkill -x`
+- Added container tracking using `containers.db`
 ## 📸 Screenshots (Attach)
 
 * CPU usage (~100%)
@@ -175,6 +185,7 @@ top
 
 This project successfully demonstrates a basic container runtime with lifecycle management and resource monitoring. It provides practical understanding of process isolation and system-level programming.
 
+This project demonstrates a lightweight container runtime with enhanced lifecycle management, logging, and monitoring features. The added improvements such as restart functionality, duplicate prevention, and structured process tracking provide a more robust and practical understanding of container systems.
 ---
 
 ## 🎤 Viva Questions
