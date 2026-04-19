@@ -220,18 +220,21 @@ The memory_hog program increases memory usage over time.
 ---
 
 ### Process Monitoring
-![PS](screenshots/ps.png)
+![PS](screenshots/ls.png)
 
-Shows running container using ps command.
+### 🔹 PS Command
+Displays running containers using the `ps` command.
 
 ---
 
 ### Stop Container
 ![Stop](screenshots/stop.png)
-
-Stops the running container process.
+Stops the running container process using:
+```bash
+sudo ./engine stop cpu_hog
 ## 👨‍💻 Author
 
-Name: **Pavan**
+Name: Pavan Kumar H K
+SRN:PES1UG24CS319
 Course: Operating Systems
 Project: Multi-Container Runtime
